@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+    <div>
+        <h1 style="margin: 0; color: #1a202c; font-size: 1.8rem;">📬 Newsletter Center</h1>
+        <p style="margin: 0.35rem 0 0; color: #718096;">Send updates to users, farmers, or both.</p>
+    </div>
+    <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary" style="font-size: 0.85rem;">Back to Admin</a>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+    <h2 style="margin-top: 0; font-size: 1.25rem;">Create a Newsletter</h2>
+    <form method="POST">
+        <label for="subject">Subject</label>
+        <input type="text" id="subject" name="subject" placeholder="Platform update for this month" required>
+
+        <label for="audience">Send to</label>
+        <select id="audience" name="audience">
+            <option value="both">Users and Farmers</option>
+            <option value="users">Users only</option>
+            <option value="farmers">Farmers only</option>
+        </select>
+
+        <label for="body">Message</label>
+        <textarea id="body" name="body" rows="8" placeholder="Write your newsletter here..." required></textarea>
+
+        <button type="submit" class="btn">Send Newsletter</button>
+    </form>
+</div>
+
+<div class="card">
+    <h2 style="margin-top: 0; font-size: 1.25rem;">Newsletter History</h2>
+    {% if newsletters %}
+        <div style="display: grid; gap: 1rem;">
+            {% for item in newsletters %}
+                <div style="border: 1px solid #edf2f7; background: #f7fafc; border-radius: 8px; padding: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <strong>{{ item.subject }}</strong>
+                        <span class="badge badge-info">{{ item.audience }}</span>
+                    </div>
+                    <p style="margin: 0.2rem 0; color: #718096; font-size: 0.85rem;">
+                        Sent {{ item.sent_count }} recipient{% if item.sent_count != 1 %}s{% endif %} • {{ item.sent_at.strftime('%b %d, %Y %I:%M %p') if item.sent_at else 'Draft' }}
+                    </p>
+                    <div style="margin-top: 0.8rem; white-space: pre-wrap; color: #2d3748; line-height: 1.6;">{{ item.body }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="color: #718096; margin: 0; font-style: italic;">No newsletters have been sent yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

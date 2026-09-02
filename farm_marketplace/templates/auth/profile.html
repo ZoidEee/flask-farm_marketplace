@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="max-width: 760px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem;">
+        <div>
+            <h1 style="margin: 0; color: #1a202c;">Your Profile</h1>
+            <p style="margin: 0.35rem 0 0; color: #718096;">Manage account details, preferences, and email verification.</p>
+        </div>
+        <div>
+            {% if user.email_verified %}
+                <span class="badge badge-success">✓ Email Verified</span>
+            {% else %}
+                <span class="badge badge-danger">Email Not Verified</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('auth.profile') }}">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" value="{{ user.email }}" required>
+
+        {% if not user.email_verified %}
+            <div style="margin: -0.5rem 0 1rem;">
+                <a href="{{ url_for('auth.resend_verification') }}" class="btn btn-secondary" style="padding: 0.45rem 0.8rem; font-size: 0.8rem;">Resend Verification Email</a>
+            </div>
+        {% endif %}
+
+        <label for="phone_number">Phone Number</label>
+        <input type="tel" id="phone_number" name="phone_number" value="{{ user.phone_number or '' }}" placeholder="(555) 123-4567">
+
+        <div style="background: #f7fafc; padding: 1rem; border-radius: 8px; border: 1px solid #edf2f7; margin-bottom: 1rem;">
+            <h3 style="margin: 0 0 0.75rem 0; font-size: 1rem; color: #1a202c;">Change Password</h3>
+            <label for="current_password">Current Password</label>
+            <input type="password" id="current_password" name="current_password" placeholder="Required only when changing your password">
+
+            <label for="password">New Password</label>
+            <input type="password" id="password" name="password" placeholder="Leave blank to keep current password">
+
+            <label for="confirm_password">Confirm New Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter new password">
+        </div>
+
+        <div style="background: #f7fafc; padding: 0.9rem 1rem; border-radius: 8px; border: 1px solid #edf2f7; margin-bottom: 1rem;">
+            <label style="display: flex; align-items: center; gap: 0.7rem; cursor: pointer; margin: 0;">
+                <input type="checkbox" name="newsletter_opt_in" value="true" {% if user.newsletter_opt_in %}checked{% endif %} style="width: auto; margin: 0;">
+                <span>📬 Receive platform newsletter updates</span>
+            </label>
+        </div>
+
+        <button type="submit" class="btn">Save Changes</button>
+    </form>
+
+    <div class="card" style="margin-top: 1.5rem; background: #fffaf0; border: 1px solid #f6e05e;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+            <h2 style="margin: 0; color: #744210;">⭐ Favorite Farms</h2>
+            <span class="badge badge-info">{{ user.favorite_farms.count() }} saved</span>
+        </div>
+        {% set favorite_farms = user.favorite_farms.order_by('name').all() %}
+        {% if favorite_farms %}
+            <div style="display: grid; gap: 0.75rem;">
+                {% for farm in favorite_farms %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; background: white; border: 1px solid #fbd38d; border-radius: 8px; padding: 0.75rem 1rem;">
+                        <div>
+                            <strong>{{ farm.name }}</strong><br>
+                            <span style="color: #718096; font-size: 0.85rem;">📍 {{ farm.location }}</span>
+                        </div>
+                        <a href="{{ url_for('farms.farm_detail', farm_id=farm.id) }}" class="btn btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">View</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="margin: 0; color: #8a6d3b;">You have not saved any farms yet. Visit the marketplace and click Favorite on any farm you like.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

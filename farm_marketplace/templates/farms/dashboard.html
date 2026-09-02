@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="max-width: 1050px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            {% if is_admin_moderation %}
+                <h1 style="margin: 0; font-size: 1.75rem;">🚜 Farm Moderation Dashboard</h1>
+                <p style="margin: 0.25rem 0 0 0; color: #718096; font-size: 0.95rem;">Administrative control to view and moderate all farms, products, and ownership profiles.</p>
+            {% else %}
+                <h1 style="margin: 0; font-size: 1.75rem;">🌾 Farmer Dashboard</h1>
+                <p style="margin: 0.25rem 0 0 0; color: #718096; font-size: 0.95rem;">Manage your farm storefronts, inventory, and multi-buy pricing deals.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if farms %}
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2rem;">
+            <div class="card" style="text-align: center; border-top: 4px solid #2b6cb0;">
+                <h2 style="font-size: 2.2rem; margin: 0; color: #2b6cb0;">{{ dashboard_summary.profile_views }}</h2>
+                <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Farm Profile Views</p>
+            </div>
+            <div class="card" style="text-align: center; border-top: 4px solid #38a169;">
+                <h2 style="font-size: 2.2rem; margin: 0; color: #276749;">{{ dashboard_summary.favorite_count }}</h2>
+                <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Favorites</p>
+            </div>
+            <div class="card" style="text-align: center; border-top: 4px solid #805ad5;">
+                <h2 style="font-size: 2.2rem; margin: 0; color: #6b46c1;">{{ dashboard_summary.product_clicks }}</h2>
+                <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Product Clicks</p>
+            </div>
+            <div class="card" style="text-align: center; border-top: 4px solid #f6ad55;">
+                <h2 style="font-size: 2.2rem; margin: 0; color: #9c6b00;">{{ dashboard_summary.conversion_rate }}%</h2>
+                <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Engagement Rate</p>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if not farms %}
+        <div class="card" style="text-align: center; padding: 3.5rem 1rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🚜</div>
+            {% if is_admin_moderation %}
+                <h2 style="margin-top: 0;">No farms registered on the platform yet</h2>
+                <p style="color: #718096; max-width: 500px; margin: 0 auto;">When users register their farms, they will appear here for administrative view.</p>
+            {% else %}
+                <h2 style="margin-top: 0;">You haven't registered any farms yet</h2>
+                <p style="color: #718096; max-width: 500px; margin: 0 auto 1.5rem auto;">Create your farm profile to start listing produce, setting payment methods, and connecting with local buyers.</p>
+                <a href="{{ url_for('farms.add_farm') }}" class="btn">+ Register Your First Farm</a>
+            {% endif %}
+        </div>
+    {% else %}
+        {% for farm in farms %}
+            <div class="card" style="margin-bottom: 2rem; border-top: 4px solid #2f855a;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem; border-bottom: 1px solid #edf2f7; padding-bottom: 1.25rem; margin-bottom: 1.25rem;">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        {% if farm.profile_image %}
+                            <img src="{{ url_for('static', filename='uploads/' + farm.profile_image) }}" alt="{{ farm.name }}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 8px;">
+                        {% endif %}
+                        <div>
+                            <h2 style="margin: 0; font-size: 1.35rem;">{{ farm.name }}</h2>
+                            <p style="margin: 0.25rem 0 0 0; color: #718096; font-size: 0.9rem;">📍 {{ farm.location }} | ✉️ {{ farm.contact_email }}{% if farm.contact_phone %} | 📞 {{ farm.contact_phone }}{% endif %}</p>
+                            <p style="margin: 0.25rem 0 0 0; color: #4a5568; font-size: 0.85rem;">💳 <strong>Payment:</strong> {{ farm.payment_methods_display }}</p>
+                            {% if is_admin_moderation %}
+                                <p style="margin: 0.25rem 0 0 0; color: #c53030; font-size: 0.85rem;">👤 <strong>Owner:</strong> {{ farm.owner.username }} ({{ farm.owner.email }})</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="{{ url_for('farms.farm_detail', farm_id=farm.id) }}" class="btn btn-secondary" style="font-size: 0.85rem;">View Storefront</a>
+                        <a href="{{ url_for('farms.edit_farm', farm_id=farm.id) }}" class="btn" style="background: #319795; font-size: 0.85rem;">Edit Profile</a>
+                        {% if not is_admin_moderation %}
+                            <a href="{{ url_for('farms.add_product', farm_id=farm.id) }}" class="btn" style="background: #2b6cb0; font-size: 0.85rem;">+ Add Product</a>
+                            <a href="{{ url_for('farms.send_shop_newsletter', farm_id=farm.id) }}" class="btn" style="background: #805ad5; font-size: 0.85rem;">📬 Send Newsletter</a>
+                            {% if farm.subscription_status != 'active' %}
+                                <form method="POST" action="{{ url_for('farms.go_live', farm_id=farm.id) }}" style="display: inline-flex; gap: 0.35rem; align-items: center;">
+                                    <select name="interval" style="width: auto; margin: 0; padding: 0.45rem; font-size: 0.8rem;">
+                                        <option value="monthly">$30 monthly</option>
+                                        <option value="yearly">$300 yearly</option>
+                                    </select>
+                                    <button type="submit" class="btn" style="background: #d69e2e; font-size: 0.85rem;">Go Live</button>
+                                </form>
+                            {% else %}
+                                <span class="badge badge-success">Live{% if farm.billing_interval %} · {{ farm.billing_interval }}{% endif %}</span>
+                            {% endif %}
+                            {% if farm.subscription_status == 'past_due' and farm.grace_period_end %}
+                                <span class="badge badge-danger">Payment overdue; visible until {{ farm.grace_period_end.strftime('%b %d, %Y') }}</span>
+                            {% elif farm.subscription_status == 'unpaid' %}
+                                <span class="badge badge-gray">Not visible to shoppers until paid</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% set metrics = farm_metrics[loop.index0] %}
+                {% set farm_newsletters = newsletters_by_farm.get(farm.id, []) %}
+                {% if farm_newsletters %}
+                <div style="margin-bottom: 1.25rem;">
+                    <h3 style="margin: 0 0 0.75rem 0; font-size: 1rem; color: #2d3748;">Recent shop newsletters</h3>
+                    <div style="display: grid; gap: 0.75rem;">
+                        {% for item in farm_newsletters[:3] %}
+                        <div style="background: #f7fafc; border: 1px solid #edf2f7; border-radius: 8px; padding: 0.9rem 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.25rem;">
+                                <strong>{{ item.subject }}</strong>
+                                <span class="badge badge-info">{{ item.sent_count }} sent</span>
+                            </div>
+                            <div style="color: #718096; font-size: 0.8rem; margin-bottom: 0.5rem;">{{ item.created_at.strftime('%b %d, %Y %I:%M %p') }}</div>
+                            <div style="white-space: pre-wrap; color: #2d3748; line-height: 1.5;">{{ item.body }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem;">
+                    <div class="card" style="padding: 0.9rem 1rem; border-top: 3px solid #2b6cb0; text-align: center;">
+                        <div style="font-size: 1.4rem; font-weight: 700; color: #2b6cb0;">{{ metrics.profile_views }}</div>
+                        <div style="color: #718096; font-size: 0.8rem;">Views</div>
+                    </div>
+                    <div class="card" style="padding: 0.9rem 1rem; border-top: 3px solid #38a169; text-align: center;">
+                        <div style="font-size: 1.4rem; font-weight: 700; color: #276749;">{{ metrics.favorite_count }}</div>
+                        <div style="color: #718096; font-size: 0.8rem;">Favorites</div>
+                    </div>
+                    <div class="card" style="padding: 0.9rem 1rem; border-top: 3px solid #805ad5; text-align: center;">
+                        <div style="font-size: 1.4rem; font-weight: 700; color: #6b46c1;">{{ metrics.product_clicks }}</div>
+                        <div style="color: #718096; font-size: 0.8rem;">Product Clicks</div>
+                    </div>
+                    <div class="card" style="padding: 0.9rem 1rem; border-top: 3px solid #f6ad55; text-align: center;">
+                        <div style="font-size: 1.4rem; font-weight: 700; color: #9c6b00;">{{ metrics.conversion_rate }}%</div>
+                        <div style="color: #718096; font-size: 0.8rem;">Conversion</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                    <h3 style="margin: 0; font-size: 1.1rem; color: #2d3748;">Product Inventory ({{ farm.products|length }})</h3>
+                </div>
+
+                {% if farm.products %}
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Category</th>
+                                    <th>Pricing & Bulk Deals</th>
+                                    <th>Stock</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in farm.products %}
+                                <tr>
+                                    <td><strong>{{ product.name }}</strong></td>
+                                    <td><span class="badge badge-gray">{{ product.category }}</span></td>
+                                    <td><span style="color: #276749; font-weight: 600;">{{ product.price_display }} / {{ product.unit }}</span></td>
+                                    <td>
+                                        {% if product.stock_quantity > 0 %}
+                                            <span class="badge badge-success">{{ product.stock_quantity }} in stock</span>
+                                        {% else %}
+                                            <span class="badge badge-danger">Out of stock</span>
+                                        {% endif %}
+                                    </td>
+                                    <td style="text-align: right; white-space: nowrap;">
+                                        <a href="{{ url_for('farms.edit_product', product_id=product.id) }}" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Edit</a>
+                                        <form action="{{ url_for('farms.delete_product', product_id=product.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Delete product {{ product.name }}?');">
+                                            <button type="submit" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div style="background: #f7fafc; padding: 1.5rem; border-radius: 6px; text-align: center; border: 1px dashed #cbd5e0;">
+                        <p style="color: #718096; margin: 0 0 0.75rem 0;">No products listed for this farm yet.</p>
+                        <a href="{{ url_for('farms.add_product', farm_id=farm.id) }}" class="btn btn-secondary" style="font-size: 0.85rem;">+ Add First Product</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+{% endblock %}

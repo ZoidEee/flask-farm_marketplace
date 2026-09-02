@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="max-width: 650px; margin: 0 auto;">
+    <div style="margin-bottom: 1rem;">
+        <a href="{{ url_for('farms.dashboard') }}" style="color: #4a5568; text-decoration: none; font-size: 0.9rem;">← Back to Farmer Dashboard</a>
+    </div>
+
+    <div class="card">
+        <h2 style="margin-top: 0; font-size: 1.5rem; color: #1a202c;">🚜 Register Farm Profile</h2>
+        <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1.5rem;">Fill in your farm details so local customers can discover your storefront and contact you for orders.</p>
+
+        <form method="POST" enctype="multipart/form-data">
+            <label for="name">Farm Name</label>
+            <input type="text" name="name" id="name" placeholder="e.g., Willow Creek Organic Farm" required>
+
+            <label for="contact_email">Contact Email</label>
+            <input type="email" name="contact_email" id="contact_email" placeholder="contact@willowcreek.ca" required>
+
+            <div style="background: #f8fafc; padding: 1.25rem; border-radius: 6px; margin: 1rem 0; border: 1px solid #e2e8f0;">
+                <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Accepted Payment Methods</label>
+                <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" name="accepts_cash" value="true" checked style="width: auto; margin: 0;"> Cash on Pickup
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" name="accepts_etransfer" id="accepts_etransfer" value="true" style="width: auto; margin: 0;"> Interac e-Transfer
+                    </label>
+                </div>
+                <div id="etransfer-email-container" style="display: none; margin-top: 0.75rem;">
+                    <label for="etransfer_email">e-Transfer Email Address</label>
+                    <input type="email" name="etransfer_email" id="etransfer_email" placeholder="payments@willowcreek.ca">
+                </div>
+            </div>
+
+            <label for="contact_phone">Contact Phone (Optional)</label>
+            <input type="tel" name="contact_phone" id="contact_phone" placeholder="(555) 123-4567">
+
+            <label for="street_address">Street Address</label>
+            <input type="text" name="street_address" id="street_address" placeholder="123 Country Road 4" required>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+                <div>
+                    <label for="city">City / Town</label>
+                    <input type="text" name="city" id="city" placeholder="Springfield" required>
+                </div>
+                <div>
+                    <label for="province">Province / State</label>
+                    <input type="text" name="province" id="province" placeholder="ON" required>
+                </div>
+                <div>
+                    <label for="postal_code">Postal Code</label>
+                    <input type="text" name="postal_code" id="postal_code" placeholder="A1B 2C3" required>
+                </div>
+            </div>
+
+            <label for="description">Farm Story & Description</label>
+            <textarea name="description" id="description" rows="4" placeholder="Tell customers about your farm, farming practices, and pick-up hours..."></textarea>
+
+            <label for="profile_image">Farm Profile Image</label>
+            <input type="file" name="profile_image" id="profile_image" accept="image/*">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+                <button type="submit" class="btn">Create Farm Profile</button>
+                <a href="{{ url_for('farms.dashboard') }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('accepts_etransfer').addEventListener('change', function() {
+        document.getElementById('etransfer-email-container').style.display = this.checked ? 'block' : 'none';
+    });
+</script>
+{% endblock %}

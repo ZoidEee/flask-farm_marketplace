@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="margin-bottom: 1rem;">
+    <a href="{{ url_for('farms.farm_detail', farm_id=farm.id) }}" style="color: #4a5568; text-decoration: none; font-size: 0.9rem;">← Back to {{ farm.name }}</a>
+</div>
+
+<div class="card" style="max-width: 900px; margin: 0 auto;">
+    <div style="display: flex; gap: 2rem; flex-wrap: wrap; align-items: flex-start;">
+        {% if product.image_file %}
+            <img src="{{ url_for('static', filename='uploads/' + product.image_file) }}" alt="{{ product.name }}" style="width: 260px; height: 260px; object-fit: cover; border-radius: 8px;">
+        {% else %}
+            <div style="width: 260px; height: 260px; background: #edf2f7; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #a0aec0;">🧺</div>
+        {% endif %}
+
+        <div style="flex: 1; min-width: 260px;">
+            <span class="badge badge-gray">{{ product.category }}</span>
+            <h1 style="margin: 0.75rem 0 0.25rem 0; color: #1a202c; font-size: 2rem;">{{ product.name }}</h1>
+
+            <div style="background: #f7fafc; border: 1px solid #edf2f7; padding: 0.75rem 1rem; border-radius: 8px; margin: 1rem 0;">
+                <span style="font-size: 1.35rem; font-weight: 700; color: #276749;">{{ product.price_display }}</span>
+                <span style="color: #718096; font-size: 0.9rem;">/ {{ product.unit }}</span>
+            </div>
+
+            {% if product.stock_quantity > 0 %}
+                <span class="badge badge-success">● In Stock ({{ product.stock_quantity }})</span>
+            {% else %}
+                <span class="badge badge-danger">Out of Stock</span>
+            {% endif %}
+
+            {% if farm.accepts_cash or farm.accepts_etransfer %}
+                <p style="margin-top: 1rem; color: #4a5568;">
+                    <strong>Payment:</strong> {{ farm.payment_methods_display }}
+                </p>
+            {% endif %}
+
+            <div style="margin-top: 1.25rem; display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                <a href="{{ url_for('farms.farm_detail', farm_id=farm.id) }}#produce" class="btn btn-secondary">View Farm Storefront</a>
+                {% if session.get('user_id') %}
+                    <form method="POST" action="{{ url_for('farms.toggle_favorite', farm_id=farm.id) }}" style="display: inline;">
+                        <button type="submit" class="btn {% if favorite %}btn-secondary{% else %}btn-outline{% endif %}">
+                            {% if favorite %}★ Favorited{% else %}☆ Favorite Farm{% endif %}
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

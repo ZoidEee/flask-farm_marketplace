@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Farm Marketplace{% endblock %}</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f7fafc;
+            color: #2d3748;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        nav {
+            background-color: #276749;
+            color: white;
+            padding: 0.85rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            flex-wrap: wrap;
+        }
+        .nav-brand { color: white; text-decoration: none; font-size: 1.25rem; font-weight: bold; display: flex; align-items: center; gap: 0.5rem; }
+        .nav-links { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .nav-links a {
+            color: white; text-decoration: none; font-weight: 500; font-size: 0.95rem; padding: 0.35rem 0.65rem; border-radius: 4px; transition: background 0.15s ease;
+        }
+        .nav-links a:hover { background: rgba(255,255,255,0.15); }
+        .nav-dropdown { position: relative; }
+        .nav-dropdown-toggle { cursor: pointer; }
+        .nav-dropdown-menu { display: none; position: absolute; top: calc(100% + 0.35rem); left: 0; background: white; min-width: 180px; border-radius: 6px; box-shadow: 0 8px 18px rgba(0,0,0,0.12); padding: 0.45rem 0; z-index: 10; }
+        .nav-dropdown:hover .nav-dropdown-menu, .nav-dropdown:focus-within .nav-dropdown-menu { display: block; }
+        .nav-dropdown-menu a { display: block; color: #2d3748; padding: 0.6rem 0.9rem; border-radius: 0; }
+        .nav-dropdown-menu a:hover { background: #f7fafc; }
+        .nav-user-actions { display: flex; align-items: center; gap: 0.25rem; }
+        .nav-user { color: white; text-decoration: none; font-weight: 700; padding: 0.35rem 0.65rem; border-radius: 4px; }
+        .nav-user:hover { background: rgba(255,255,255,0.15); }
+        .nav-badge-admin { background-color: #c53030 !important; color: white !important; font-weight: 600; }
+        .container { max-width: 1100px; width: 100%; margin: 2rem auto; padding: 0 1rem; flex: 1 0 auto; }
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+        .grid { display: grid; gap: 1.5rem; }
+        .btn {
+            background-color: #2f855a; color: white; border: none; padding: 0.5rem 1.1rem; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; font-weight: 500; font-size: 0.95rem; transition: background 0.15s ease;
+        }
+        .btn:hover { background-color: #276749; }
+        .btn-secondary { background-color: #4a5568; }
+        .btn-secondary:hover { background-color: #2d3748; }
+        .btn-outline { background-color: transparent; border: 1px solid #cbd5e0; color: #4a5568; }
+        .btn-outline:hover { background-color: #edf2f7; }
+        .btn-danger { background-color: #e53e3e; }
+        .btn-danger:hover { background-color: #c53030; }
+        input, select, textarea {
+            width: 100%; padding: 0.55rem 0.75rem; margin-top: 0.25rem; margin-bottom: 1rem; border: 1px solid #cbd5e0; border-radius: 5px; font-size: 0.95rem; box-sizing: border-box;
+        }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #319795; box-shadow: 0 0 0 3px rgba(49,151,149,0.2); }
+        label { font-weight: 600; font-size: 0.9rem; color: #4a5568; }
+        .badge {
+            display: inline-block; padding: 0.2rem 0.55rem; border-radius: 4px; font-size: 0.8rem; font-weight: 600;
+        }
+        .badge-success { background-color: #c6f6d5; color: #22543d; }
+        .badge-danger { background-color: #fed7d7; color: #742a2a; }
+        .badge-info { background-color: #bee3f8; color: #2b6cb0; }
+        .badge-gray { background-color: #edf2f7; color: #4a5568; }
+        table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+        th, td { padding: 0.75rem 0.6rem; text-align: left; border-bottom: 1px solid #edf2f7; }
+        th { background-color: #f7fafc; color: #4a5568; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.05em; }
+        .alert { padding: 0.85rem 1.25rem; border-radius: 6px; margin-bottom: 1.5rem; font-weight: 500; }
+        .alert-success { background-color: #c6f6d5; color: #22543d; border-left: 4px solid #38a169; }
+        .alert-error, .alert-danger, .alert-invalid { background-color: #fed7d7; color: #742a2a; border-left: 4px solid #e53e3e; }
+        .alert-info { background-color: #bee3f8; color: #2c5282; border-left: 4px solid #3182ce; }
+        footer {
+            margin-top: 3rem; background: #1f2933; color: #e2e8f0; padding: 2rem 1rem; flex-shrink: 0;
+        }
+        .footer-inner { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .footer-links { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .footer-links a { color: #e2e8f0; text-decoration: none; }
+        @media (max-width: 640px) {
+            nav { padding: 0.75rem 1rem; }
+            .nav-links { gap: 0.35rem; width: 100%; }
+            .nav-links a { font-size: 0.88rem; padding: 0.3rem 0.45rem; }
+            .container { margin-top: 1rem; }
+            .card { padding: 1rem; }
+            table { min-width: 680px; }
+            .footer-inner { align-items: flex-start; flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="{{ url_for('main.index') }}" class="nav-brand">🌾 Farm Marketplace</a>
+        <div class="nav-links">
+            <a href="{{ url_for('main.index') }}">Marketplace</a>
+            <div class="nav-dropdown">
+                <a href="{{ url_for('main.about') }}" class="nav-dropdown-toggle">About</a>
+                <div class="nav-dropdown-menu">
+                    <a href="{{ url_for('main.about') }}">About</a>
+                    <a href="{{ url_for('main.contact') }}">Contact</a>
+                </div>
+            </div>
+            {% if session.get('user_id') %}
+                <div class="nav-user-actions">
+                    <a href="{{ url_for('auth.profile') }}" class="nav-user">{{ session.get('username') or 'Profile' }}</a>
+                    <a href="{{ url_for('auth.logout') }}">Logout</a>
+                </div>
+                {% if session.get('is_farmer') %}
+                    <a href="{{ url_for('farms.dashboard') }}">Farmer Dashboard</a>
+                {% endif %}
+                {% if session.get('is_admin') %}
+                    <a href="{{ url_for('admin.dashboard') }}" class="nav-badge-admin">Admin</a>
+                {% endif %}
+            {% else %}
+                <a href="{{ url_for('auth.login') }}">Login</a>
+                <a href="{{ url_for('auth.register') }}">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category in ['success','error','info','danger'] else 'info' }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </div>
+    <script>
+        document.querySelectorAll('form[method="POST"], form[method="post"]').forEach(function (form) {
+            if (!form.querySelector('input[name="_csrf_token"]')) {
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = '_csrf_token';
+                input.value = {{ csrf_token|tojson }}
+                form.appendChild(input);
+            }
+        });
+    </script>
+
+    <footer>
+        <div class="footer-inner">
+            <div>© 2026 Farm Marketplace</div>
+            <div class="footer-links">
+                <a href="{{ url_for('main.index') }}">Marketplace</a>
+                <a href="{{ url_for('main.about') }}">About</a>
+                <a href="{{ url_for('main.contact') }}">Contact</a>
+                <a href="{{ url_for('main.privacy') }}">Privacy</a>
+                <a href="{{ url_for('main.terms') }}">Terms</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

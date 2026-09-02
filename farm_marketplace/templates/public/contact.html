@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="max-width: 700px; margin: 0 auto;">
+    <h1 style="margin-top: 0; color: #22543d;">Contact the Site</h1>
+    <p style="color: #4a5568; margin-bottom: 1.5rem;">
+        Need help with the marketplace, want to ask about farm listings, or have a question for the team?
+        Send a message below and we will follow up.
+    </p>
+
+    <form method="POST">
+        <label for="name">Your Name</label>
+        <input type="text" id="name" name="name" placeholder="Jane Smith" required>
+
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="jane@example.com" required>
+
+        <label for="subject">Subject</label>
+        <input type="text" id="subject" name="subject" placeholder="Marketplace question" required>
+
+        <label for="message">Message</label>
+        <textarea id="message" name="message" rows="6" placeholder="Tell us how we can help..." required></textarea>
+
+        <button type="submit" class="btn">Send Message</button>
+    </form>
+</div>
+{% endblock %}

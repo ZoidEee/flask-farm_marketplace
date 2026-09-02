@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="max-width: 460px; margin: 2rem auto; border-top: 4px solid #2f855a;">
+    <h2 style="margin-top: 0; color: #1a202c;">Create an Account</h2>
+    <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1.5rem;">Join the marketplace to buy fresh produce or register your farm to sell.</p>
+
+    <form method="POST" action="{{ url_for('auth.register') }}">
+        <label for="username">Username</label>
+        <input type="text" name="username" id="username" placeholder="Choose a username (min 3 chars)" required autofocus minlength="3">
+
+        <label for="email">Email Address</label>
+        <input type="email" name="email" id="email" placeholder="you@example.com" required>
+
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" placeholder="Create a secure password (min 6 chars)" required minlength="6">
+
+        <div style="background: #f7fafc; padding: 0.85rem 1rem; border-radius: 6px; margin: 1rem 0; border: 1px solid #edf2f7;">
+            <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; margin: 0;">
+                <input type="checkbox" name="is_farmer" value="true" style="width: auto; margin: 0;">
+                <span>🌾 <strong>I am a Farm Owner / Producer</strong> (sell produce)</span>
+            </label>
+        </div>
+
+        <div style="background: #f7fafc; padding: 0.85rem 1rem; border-radius: 6px; margin: 1rem 0; border: 1px solid #edf2f7;">
+            <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; margin: 0;">
+                <input type="checkbox" name="newsletter_opt_in" value="true" checked style="width: auto; margin: 0;">
+                <span>📬 <strong>Receive platform updates</strong> by email</span>
+            </label>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; margin-top: 0.5rem; padding: 0.65rem;">Create Account</button>
+    </form>
+
+    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #edf2f7; text-align: center; font-size: 0.9rem; color: #718096;">
+        Already have an account? <a href="{{ url_for('auth.login') }}" style="color: #2b6cb0; font-weight: 600; text-decoration: none;">Sign in here</a>
+    </div>
+</div>
+{% endblock %}

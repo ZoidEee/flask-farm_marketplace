@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="max-width: 650px; margin: 0 auto;">
+    <div style="margin-bottom: 1rem;">
+        <a href="{{ url_for('farms.dashboard') }}" style="color: #4a5568; text-decoration: none; font-size: 0.9rem;">← Back to Farmer Dashboard</a>
+    </div>
+
+    <div class="card">
+        <h2 style="margin-top: 0; font-size: 1.5rem; color: #1a202c;">🧺 Add Product to {{ farm.name }}</h2>
+        <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1.5rem;">List fresh produce or products available for customers to order or pickup.</p>
+
+        <form method="POST" enctype="multipart/form-data">
+            <label for="name">Product Name</label>
+            <input type="text" name="name" id="name" placeholder="e.g., Organic Honeycrisp Apples" required>
+
+            <label for="category">Category</label>
+            <select name="category" id="category" required>
+                {% set cats = categories if categories else ['Vegetables', 'Fruits', 'Dairy', 'Meat', 'Poultry', 'Honey & Preserves', 'Bakery', 'Other'] %}
+                {% for cat in cats %}
+                    <option value="{{ cat }}">{{ cat }}</option>
+                {% endfor %}
+            </select>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label for="price">Base Unit Price ($)</label>
+                    <input type="number" step="0.01" name="price" id="price" placeholder="4.50" required min="0.01">
+                </div>
+                <div>
+                    <label for="unit">Unit</label>
+                    <select name="unit" id="unit" required>
+                        {% for unit in units %}
+                            <option value="{{ unit }}" {% if unit == 'lbs' %}selected{% endif %}>{{ unit }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <label for="stock_quantity">Stock Inventory Quantity</label>
+            <input type="number" name="stock_quantity" id="stock_quantity" required min="0" value="25" placeholder="e.g., 50">
+
+            <div style="background: #f8fafc; padding: 1.25rem; border-radius: 6px; margin: 1rem 0; border: 1px solid #e2e8f0;">
+                <label style="font-weight: bold; display: block; margin-bottom: 0.25rem;">Multi-Buy Price Deals (Optional)</label>
+                <p style="color: #718096; font-size: 0.85rem; margin: 0 0 0.75rem 0;">Offer discounts for larger purchases (e.g. 3 for $10.00).</p>
+                <div id="bulk-tiers-container"></div>
+                <button type="button" id="add-tier-btn" class="btn btn-secondary" style="font-size: 0.85rem; margin-top: 0.5rem;">+ Add Multi-Buy Deal</button>
+            </div>
+
+            <label for="product_image">Product Image</label>
+            <input type="file" name="product_image" id="product_image" accept="image/*">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+                <button type="submit" class="btn">Add Product to Inventory</button>
+                <a href="{{ url_for('farms.dashboard') }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('add-tier-btn').addEventListener('click', function() {
+        const container = document.getElementById('bulk-tiers-container');
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.gap = '0.5rem';
+        row.style.marginBottom = '0.5rem';
+        row.style.alignItems = 'center';
+        row.innerHTML = `
+            <div style="flex: 1;">
+                <input type="number" name="bulk_quantities[]" placeholder="Quantity (e.g., 3)" min="2" style="margin:0;" required>
+            </div>
+            <div style="flex: 1;">
+                <input type="number" step="0.01" name="bulk_prices[]" placeholder="Total Price $ (e.g., 10.00)" min="0.01" style="margin:0;" required>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()" style="background:#e53e3e; color:white; border:none; padding:0.55rem 0.75rem; border-radius:4px; cursor:pointer; height:38px;">✕</button>
+        `;
+        container.appendChild(row);
+    });
+</script>
+{% endblock %}

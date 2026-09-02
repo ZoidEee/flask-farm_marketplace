@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+        <div>
+            <h1 style="margin: 0; font-size: 1.8rem;">📬 Send a favorite-shoppers newsletter</h1>
+            <p style="margin: 0.35rem 0 0; color: #718096;">This campaign reaches only users who have favorited {{ farm.name }} and opted in to marketplace updates.</p>
+        </div>
+        <a href="{{ url_for('farms.dashboard') }}" class="btn btn-secondary" style="font-size: 0.85rem;">Back to dashboard</a>
+    </div>
+
+    <div class="card">
+        <form method="POST">
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" name="subject" placeholder="This week's farm update" required>
+
+            <label for="body">Newsletter message</label>
+            <textarea id="body" name="body" rows="10" placeholder="Write an update for the customers who already follow your farm..." required></textarea>
+
+            <div style="background: #f7fafc; padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid #edf2f7; margin-bottom: 1rem; color: #4a5568; font-size: 0.9rem;">
+                This email will be sent only to customers who have favorited this farm and enabled marketing emails in their preferences.
+            </div>
+
+            <button type="submit" class="btn">Send newsletter</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

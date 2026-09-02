@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .admin-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .admin-tab { border: 1px solid #cbd5e0; background: white; color: #4a5568; padding: 0.55rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; }
+    .admin-tab.active, .admin-tab:hover { background: #276749; color: white; border-color: #276749; }
+    .admin-panel[hidden] { display: none; }
+    @media (max-width: 640px) {
+        .subscription-pricing-form { grid-template-columns: 1fr !important; }
+        .subscription-pricing-form button { grid-column: auto !important; justify-self: stretch !important; }
+    }
+</style>
+<div style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1 style="margin: 0; font-size: 1.75rem; color: #1a202c;">⚙️ System Administration Panel</h1>
+        <p style="margin: 0.25rem 0 0 0; color: #718096; font-size: 0.95rem;">Manage user accounts, roles, and moderate registered farms across the marketplace.</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <a href="{{ url_for('admin.newsletter') }}" class="btn" style="font-size: 0.85rem;">Manage Newsletters</a>
+        <a href="{{ url_for('farms.dashboard') }}" class="btn btn-secondary" style="font-size: 0.85rem;">Go to Farmer Dashboard</a>
+    </div>
+</div>
+
+<div class="admin-tabs" role="tablist" aria-label="Admin dashboard sections">
+    <button type="button" class="admin-tab active" role="tab" aria-selected="true" aria-controls="admin-summary" data-panel="admin-summary">Summary</button>
+    <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="admin-financial" data-panel="admin-financial">Financial</button>
+    <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="admin-engagement" data-panel="admin-engagement">Engagement</button>
+    <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="admin-communications" data-panel="admin-communications">Communications</button>
+    <button type="button" class="admin-tab" role="tab" aria-selected="false" aria-controls="admin-management" data-panel="admin-management">Users & Farms</button>
+</div>
+
+<section id="admin-summary" class="admin-panel" role="tabpanel">
+<div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 2rem;">
+    <div class="card" style="text-align: center; border-top: 4px solid #3182ce;">
+        <h2 style="font-size: 2.2rem; margin: 0; color: #2b6cb0;">{{ users|length }}</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Total Users</p>
+    </div>
+    <div class="card" style="text-align: center; border-top: 4px solid #38a169;">
+        <h2 style="font-size: 2.2rem; margin: 0; color: #276749;">{{ farms|length }}</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Total Farms</p>
+    </div>
+    <div class="card" style="text-align: center; border-top: 4px solid #805ad5;">
+        <h2 style="font-size: 2.2rem; margin: 0; color: #6b46c1;">{{ total_products }}</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Products Listed</p>
+    </div>
+    <div class="card" style="text-align: center; border-top: 4px solid #f6ad55;">
+        <h2 style="font-size: 2.2rem; margin: 0; color: #9c6b00;">{{ total_favorites }}</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Favorite Saves</p>
+    </div>
+    <div class="card" style="text-align: center; border-top: 4px solid #48bb78;">
+        <h2 style="font-size: 2.2rem; margin: 0; color: #276749;">{{ live_farms }}</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Live Subscriptions</p>
+    </div>
+    <div class="card" style="text-align: center; border-top: 4px solid #ed8936;">
+        <h2 style="font-size: 2.2rem; margin: 0; color: #c05621;">{{ past_due_farms }}</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Past Due</p>
+    </div>
+    <div class="card" style="text-align: center; border-top: 4px solid #4299e1;">
+        <h2 style="font-size: 2.2rem; margin: 0; color: #2b6cb0;">{{ monthly_subscriptions }}</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Monthly Plans</p>
+    </div>
+    <div class="card" style="text-align: center; border-top: 4px solid #9f7aea;">
+        <h2 style="font-size: 2.2rem; margin: 0; color: #6b46c1;">{{ yearly_subscriptions }}</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Yearly Plans</p>
+    </div>
+    <div class="card" style="text-align: center; border-top: 4px solid #38b2ac;">
+        <h2 style="font-size: 2.2rem; margin: 0; color: #285e61;">${{ estimated_annual_revenue }}</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Estimated Grand Annual Revenue</p>
+    </div>
+    </div>
+</section>
+
+<section id="admin-financial" class="admin-panel" role="tabpanel" hidden>
+    <div class="card" style="margin-bottom: 2rem;">
+        <h2 style="margin: 0 0 0.5rem 0; font-size: 1.25rem;">💳 Subscription Pricing</h2>
+        <p style="margin: 0 0 1rem; color: #718096; font-size: 0.9rem;">Prices apply to new Stripe Checkout sessions. Existing subscriptions keep their current Stripe price.</p>
+        <form method="POST" action="{{ url_for('admin.update_subscription_plans') }}" class="subscription-pricing-form" style="display: grid; grid-template-columns: repeat(2, minmax(180px, 1fr)); gap: 0.75rem 1rem; align-items: end;">
+            <div>
+                <label for="monthly_amount">Monthly price (cents)</label>
+                <input type="number" min="1" id="monthly_amount" name="monthly_amount" value="{{ subscription_plans['monthly'].amount_cents if subscription_plans.get('monthly') else 3000 }}" required>
+            </div>
+            <div>
+                <label for="yearly_amount">Yearly price (cents)</label>
+                <input type="number" min="1" id="yearly_amount" name="yearly_amount" value="{{ subscription_plans['yearly'].amount_cents if subscription_plans.get('yearly') else 30000 }}" required>
+            </div>
+            <button type="submit" class="btn" style="grid-column: 1 / -1; justify-self: center;">Save Subscription Prices</button>
+        </form>
+    </div>
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 2rem;">
+        <div class="card" style="text-align: center; border-top: 4px solid #38b2ac;">
+            <h2 style="font-size: 2.2rem; margin: 0; color: #285e61;">${{ estimated_monthly_revenue }}</h2>
+            <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Estimated Monthly Revenue</p>
+        </div>
+        <div class="card" style="text-align: center; border-top: 4px solid #4299e1;">
+            <h2 style="font-size: 2.2rem; margin: 0; color: #2b6cb0;">{{ monthly_subscriptions }}</h2>
+            <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Monthly Plans</p>
+        </div>
+        <div class="card" style="text-align: center; border-top: 4px solid #9f7aea;">
+            <h2 style="font-size: 2.2rem; margin: 0; color: #6b46c1;">{{ yearly_subscriptions }}</h2>
+            <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Yearly Plans</p>
+        </div>
+    </div>
+</section>
+
+<section id="admin-engagement" class="admin-panel" role="tabpanel" hidden>
+
+<div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2rem;">
+    <div class="card" style="text-align: center; border-top: 4px solid #2b6cb0;">
+        <h2 style="font-size: 2.1rem; margin: 0; color: #2b6cb0;">{{ total_profile_views }}</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Farm Views</p>
+    </div>
+    <div class="card" style="text-align: center; border-top: 4px solid #38a169;">
+        <h2 style="font-size: 2.1rem; margin: 0; color: #276749;">{{ total_product_clicks }}</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Product Clicks</p>
+    </div>
+    <div class="card" style="text-align: center; border-top: 4px solid #805ad5;">
+        <h2 style="font-size: 2.1rem; margin: 0; color: #6b46c1;">{{ total_reviews }}</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Reviews</p>
+    </div>
+    <div class="card" style="text-align: center; border-top: 4px solid #f6ad55;">
+        <h2 style="font-size: 2.1rem; margin: 0; color: #9c6b00;">{{ conversion_rate }}%</h2>
+        <p style="margin: 0.25rem 0 0 0; color: #718096; font-weight: 500;">Conversion Rate</p>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom: 2rem;">
+    <h2 style="margin: 0 0 1rem 0; font-size: 1.25rem;">⭐ Favorite Engagement</h2>
+    {% if top_favorited_farms %}
+        <div style="display: grid; gap: 0.75rem;">
+            {% for item in top_favorited_farms %}
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; background: #fffaf0; border: 1px solid #f6e05e; border-radius: 8px; padding: 0.75rem 1rem;">
+                    <div>
+                        <strong>{{ item.farm.name }}</strong><br>
+                        <span style="font-size: 0.8rem; color: #718096;">📍 {{ item.farm.location }}</span>
+                    </div>
+                    <span class="badge badge-info">{{ item.favorite_count }} saves</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="margin: 0; color: #718096; font-style: italic;">No farms have been favorited yet.</p>
+    {% endif %}
+</div>
+<div class="card" style="margin-bottom: 2rem;">
+    <h2 style="margin: 0 0 1rem 0; font-size: 1.25rem;">📈 Top Farm Reporting</h2>
+    <div style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+        <div>
+            <h3 style="margin: 0 0 0.75rem 0; font-size: 1rem; color: #2d3748;">Highest Profile Views</h3>
+            <div style="display: grid; gap: 0.65rem;">
+                {% for item in top_farms_by_views %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; background: #f7fafc; border-radius: 8px; padding: 0.75rem 0.9rem; border: 1px solid #edf2f7;">
+                        <strong>{{ item.farm.name }}</strong>
+                        <span class="badge badge-info">{{ item.profile_views }} views</span>
+                    </div>
+                {% else %}
+                    <p style="margin: 0; color: #718096; font-style: italic;">No farm view data yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+        <div>
+            <h3 style="margin: 0 0 0.75rem 0; font-size: 1rem; color: #2d3748;">Highest Engagement</h3>
+            <div style="display: grid; gap: 0.65rem;">
+                {% for item in top_farms_by_engagement %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; background: #f7fafc; border-radius: 8px; padding: 0.75rem 0.9rem; border: 1px solid #edf2f7;">
+                        <strong>{{ item.farm.name }}</strong>
+                        <span class="badge badge-success">{{ item.engagement_score }} pts</span>
+                    </div>
+                {% else %}
+                    <p style="margin: 0; color: #718096; font-style: italic;">No engagement data yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+</section>
+
+<section id="admin-communications" class="admin-panel" role="tabpanel" hidden>
+<div class="card" style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
+        <h2 style="margin: 0; font-size: 1.25rem;">📬 Recent Newsletters</h2>
+        <a href="{{ url_for('admin.newsletter') }}" class="btn btn-secondary" style="font-size: 0.85rem;">Create Newsletter</a>
+    </div>
+    {% if recent_newsletters %}
+        <div style="display: grid; gap: 0.75rem;">
+            {% for item in recent_newsletters %}
+                <div style="background: #f7fafc; border: 1px solid #edf2f7; border-radius: 8px; padding: 0.9rem 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <strong>{{ item.subject }}</strong>
+                        <span class="badge badge-info" style="font-size: 0.7rem;">{{ item.audience }}</span>
+                    </div>
+                    <p style="margin: 0.45rem 0 0; color: #718096; font-size: 0.85rem;">Sent to {{ item.sent_count }} recipients • {{ item.sent_at.strftime('%b %d, %Y') if item.sent_at else 'Draft' }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p style="color: #718096; margin: 0; font-style: italic;">No newsletters sent yet.</p>
+    {% endif %}
+</div>
+</section>
+
+<section id="admin-management" class="admin-panel" role="tabpanel" hidden>
+<div class="card" style="margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 style="margin: 0; font-size: 1.25rem;">👥 User Management</h2>
+        <span style="font-size: 0.85rem; color: #718096;">Click any role badge to toggle permissions</span>
+    </div>
+    <div style="overflow-x: auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Farmer Role</th>
+                    <th>Admin Role</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td><strong>#{{ u.id }}</strong></td>
+                    <td>
+                        {{ u.username }}
+                        {% if u.id == session.get('user_id') %}
+                            <span class="badge badge-info" style="font-size: 0.7rem;">You</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ u.email }}</td>
+                    <td>
+                        <a href="{{ url_for('admin.toggle_user_role', user_id=u.id, role='farmer') }}" title="Click to toggle Farmer role" style="text-decoration: none;">
+                            {% if u.is_farmer %}
+                                <span class="badge badge-success">✓ Farmer</span>
+                            {% else %}
+                                <span class="badge badge-gray">No</span>
+                            {% endif %}
+                        </a>
+                    </td>
+                    <td>
+                        {% if u.id == session.get('user_id') %}
+                            <span class="badge badge-danger" title="Cannot revoke own admin role">✓ Admin (Self)</span>
+                        {% else %}
+                            <a href="{{ url_for('admin.toggle_user_role', user_id=u.id, role='admin') }}" title="Click to toggle Admin role" style="text-decoration: none;">
+                                {% if u.is_admin %}
+                                    <span class="badge badge-danger">✓ Admin</span>
+                                {% else %}
+                                    <span class="badge badge-gray">No</span>
+                                {% endif %}
+                            </a>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: right;">
+                        {% if u.id != session.get('user_id') %}
+                        <form method="POST" action="{{ url_for('admin.delete_user', user_id=u.id) }}" style="display:inline;" onsubmit="return confirm('Permanently delete user {{ u.username }} and all their farms and products?');">
+                            <button type="submit" class="btn btn-danger" style="padding: 0.25rem 0.6rem; font-size: 0.8rem;">Delete User</button>
+                        </form>
+                        {% else %}
+                        <span style="color: #a0aec0; font-size: 0.85rem; font-style: italic;">Current Session</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 style="margin: 0; font-size: 1.25rem;">🚜 Farm Moderation</h2>
+        <span style="font-size: 0.85rem; color: #718096;">All registered farms</span>
+    </div>
+    <div style="overflow-x: auto;">
+        {% if farms %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Farm Name</th>
+                        <th>Owner</th>
+                        <th>Location</th>
+                        <th>Payment Methods</th>
+                        <th>Products</th>
+                        <th>Subscription</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for f in farms %}
+                    <tr>
+                        <td><strong>#{{ f.id }}</strong></td>
+                        <td><strong><a href="{{ url_for('farms.farm_detail', farm_id=f.id) }}" style="color: #2b6cb0; text-decoration: none;">{{ f.name }}</a></strong></td>
+                        <td>{{ f.owner.username if f.owner else 'Unknown' }} <span style="color: #a0aec0; font-size: 0.8rem;">(ID: {{ f.user_id }})</span></td>
+                        <td>📍 {{ f.location }}</td>
+                        <td><span style="font-size: 0.85rem; color: #4a5568;">{{ f.payment_methods_display }}</span></td>
+                        <td><span class="badge badge-info">{{ f.products|length }} items</span></td>
+                        <td>
+                            {% if f.subscription_status == 'active' %}
+                                <span class="badge badge-success">Live</span>
+                            {% elif f.subscription_status == 'past_due' %}
+                                <span class="badge badge-danger">Past due</span>
+                            {% else %}
+                                <span class="badge badge-gray">{{ f.subscription_status|replace('_', ' ')|title }}</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: right; white-space: nowrap;">
+                            <a href="{{ url_for('farms.farm_detail', farm_id=f.id) }}" class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">View</a>
+                            <form method="POST" action="{{ url_for('admin.delete_farm', farm_id=f.id) }}" style="display:inline;" onsubmit="return confirm('Remove farm {{ f.name }} and all its products?');">
+                                <button type="submit" class="btn btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p style="color: #718096; font-style: italic; margin: 1rem 0;">No farms have been registered in the database yet.</p>
+        {% endif %}
+    </div>
+</div>
+</section>
+
+<script>
+    document.querySelectorAll('.admin-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            document.querySelectorAll('.admin-tab').forEach(function (item) {
+                item.classList.remove('active');
+                item.setAttribute('aria-selected', 'false');
+            });
+            document.querySelectorAll('.admin-panel').forEach(function (panel) {
+                panel.hidden = true;
+            });
+            tab.classList.add('active');
+            tab.setAttribute('aria-selected', 'true');
+            document.getElementById(tab.dataset.panel).hidden = false;
+        });
+    });
+</script>
+{% endblock %}

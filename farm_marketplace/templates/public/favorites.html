@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="max-width: 1000px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+            <h1 style="margin: 0; color: #22543d;">⭐ Your Favorite Farms</h1>
+            <p style="margin: 0.35rem 0 0; color: #718096;">Quick access to the farms you want to keep an eye on.</p>
+        </div>
+        <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Browse Marketplace</a>
+    </div>
+
+    {% if farms %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.25rem;">
+            {% for farm in farms %}
+                <div class="card" style="padding: 1rem; border-top: 4px solid #f6ad55;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        {% if farm.profile_image %}
+                            <img src="{{ url_for('static', filename='uploads/' + farm.profile_image) }}" alt="{{ farm.name }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+                        {% else %}
+                            <div style="width: 60px; height: 60px; background: #edf2f7; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🚜</div>
+                        {% endif %}
+                        <div>
+                            <h3 style="margin: 0; font-size: 1.1rem;">{{ farm.name }}</h3>
+                            <p style="margin: 0.2rem 0 0; color: #718096; font-size: 0.8rem;">📍 {{ farm.location }}</p>
+                        </div>
+                    </div>
+                    <p style="color: #4a5568; margin: 0 0 1rem; font-size: 0.9rem;">{{ farm.description or 'No description provided yet.' }}</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem;">
+                        <a href="{{ url_for('farms.farm_detail', farm_id=farm.id) }}" class="btn">View Farm</a>
+                        <form method="POST" action="{{ url_for('farms.toggle_favorite', farm_id=farm.id) }}">
+                            <button type="submit" class="btn btn-outline" style="padding: 0.45rem 0.7rem; font-size: 0.8rem;">Remove</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div style="text-align: center; padding: 3rem 1rem; color: #718096;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">⭐</div>
+            <h3 style="margin: 0; color: #4a5568;">No favorite farms yet</h3>
+            <p style="margin: 1rem auto 1.5rem; max-width: 480px;">Save farms you like to keep track of their products and availability.</p>
+            <a href="{{ url_for('main.index') }}" class="btn">Explore Farms</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

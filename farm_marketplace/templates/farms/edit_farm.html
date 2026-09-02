@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block content %}
+<div style="max-width: 650px; margin: 0 auto;">
+    <div style="margin-bottom: 1rem;">
+        <a href="{{ url_for('farms.dashboard') }}" style="color: #4a5568; text-decoration: none; font-size: 0.9rem;">← Back to Farmer Dashboard</a>
+    </div>
+
+    <div class="card" style="margin-bottom: 2rem;">
+        <h2 style="margin-top: 0;">Edit Farm: {{ farm.name }}</h2>
+        <form method="POST" enctype="multipart/form-data">
+            <label for="name">Farm Name</label>
+            <input type="text" name="name" id="name" required value="{{ farm.name }}">
+
+            <label for="contact_email">Contact Email</label>
+            <input type="email" name="contact_email" id="contact_email" required value="{{ farm.contact_email }}">
+
+            <div style="background: #f8fafc; padding: 1.25rem; border-radius: 6px; margin: 1rem 0; border: 1px solid #e2e8f0;">
+                <label style="font-weight: bold; display: block; margin-bottom: 0.5rem;">Accepted Payment Methods</label>
+                <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" name="accepts_cash" value="true" {% if farm.accepts_cash %}checked{% endif %} style="width: auto; margin: 0;"> Cash on Pickup
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" name="accepts_etransfer" id="accepts_etransfer" value="true" {% if farm.accepts_etransfer %}checked{% endif %} style="width: auto; margin: 0;"> Interac e-Transfer
+                    </label>
+                </div>
+                <div id="etransfer-email-container" style="display: {% if farm.accepts_etransfer %}block{% else %}none{% endif %}; margin-top: 0.75rem;">
+                    <label for="etransfer_email">e-Transfer Email Address</label>
+                    <input type="email" name="etransfer_email" id="etransfer_email" value="{{ farm.etransfer_email or '' }}" placeholder="payments@farm.ca">
+                </div>
+            </div>
+
+            <label for="contact_phone">Contact Phone (Optional)</label>
+            <input type="tel" name="contact_phone" id="contact_phone" value="{{ farm.contact_phone or '' }}" placeholder="(555) 123-4567">
+
+            <label for="street_address">Street Address</label>
+            <input type="text" name="street_address" id="street_address" required value="{{ farm.street_address }}">
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;">
+                <div>
+                    <label for="city">City</label>
+                    <input type="text" name="city" id="city" required value="{{ farm.city }}">
+                </div>
+                <div>
+                    <label for="province">Province / State</label>
+                    <input type="text" name="province" id="province" required value="{{ farm.province }}">
+                </div>
+                <div>
+                    <label for="postal_code">Postal Code</label>
+                    <input type="text" name="postal_code" id="postal_code" required value="{{ farm.postal_code }}">
+                </div>
+            </div>
+
+            <label for="description">Farm Story & Description</label>
+            <textarea name="description" id="description" rows="4" placeholder="Tell customers about your farm, farming practices, and pick-up hours...">{{ farm.description or '' }}</textarea>
+
+            {% if farm.profile_image %}
+                <div style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;">
+                    <img src="{{ url_for('static', filename='uploads/' + farm.profile_image) }}" alt="Current image" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
+                    <span style="font-size: 0.85rem; color: #718096;">Current image: {{ farm.profile_image }}</span>
+                </div>
+            {% endif %}
+
+            <label for="profile_image">Replace Profile Image (Optional)</label>
+            <input type="file" name="profile_image" id="profile_image" accept="image/*">
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+                <button type="submit" class="btn">Save Changes</button>
+                <a href="{{ url_for('farms.dashboard') }}" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="card" style="border: 1px solid #fed7d7; background: #fff5f5;">
+        <h3 style="color: #9b2c2c; margin-top: 0; font-size: 1.1rem;">Danger Zone</h3>
+        <p style="color: #742a2a; font-size: 0.9rem; margin-bottom: 1rem;">Deleting this farm will permanently remove all associated products and images.</p>
+        <form action="{{ url_for('farms.delete_farm', farm_id=farm.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ farm.name }} and all its products? This cannot be undone.');">
+            <button type="submit" class="btn btn-danger" style="font-size: 0.85rem;">Delete This Farm</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('accepts_etransfer').addEventListener('change', function() {
+        document.getElementById('etransfer-email-container').style.display = this.checked ? 'block' : 'none';
+    });
+</script>
+{% endblock %}

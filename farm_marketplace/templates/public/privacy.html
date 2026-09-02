@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 2rem auto;">
+    <h1 style="margin-top: 0; color: #22543d;">Privacy and Safety</h1>
+
+    <p>Farm Marketplace is designed to help local shoppers discover and support farms while protecting personal data and user consent.</p>
+
+    <h3>What we collect</h3>
+    <ul>
+        <li>Account details such as username, email address, and farm profile information.</li>
+        <li>Newsletter preferences and communications consent.</li>
+        <li>Favorites, profile views, and product engagement used to improve marketplace insights.</li>
+    </ul>
+
+    <h3>How we use data</h3>
+    <ul>
+        <li>To support account login, verification, and password recovery.</li>
+        <li>To personalize marketplace browsing and track engagement for farms and products.</li>
+        <li>To send relevant market updates only when a user has opted in.</li>
+    </ul>
+
+    <h3>Communication controls</h3>
+    <p>Users can update their communication preferences at any time from the newsletter preferences page. A farm can only email users who have favorited the farm and opted in to email updates.</p>
+
+    <h3>Security</h3>
+    <p>We use secure session settings, password hashing, and environment-based configuration to reduce the risk of exposed secrets or insecure defaults in production deployments.</p>
+
+    <h3>Retention</h3>
+    <p>Platform data is kept only as long as needed to operate the marketplace and meet legal or operational requirements. Account, billing, consent, and delivery records are retained for operational, tax, fraud-prevention, and legal needs, then securely deleted or anonymized according to the retention schedule maintained by the operator. Users can update preferences or contact the team to request further assistance.</p>
+</div>
+{% endblock %}

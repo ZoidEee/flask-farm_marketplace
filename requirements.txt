@@ -1,0 +1,5 @@
+Flask
+Flask-SQLAlchemy
+pip-audit
+bandit
+sentry-sdk[flask]

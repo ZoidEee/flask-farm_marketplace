@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 2rem auto;">
+    <h1 style="margin-top: 0; color: #22543d;">Newsletter Preferences</h1>
+    <p style="color: #4a5568; line-height: 1.6;">
+        Choose whether you want to receive important platform updates, product highlights, and community announcements by email.
+    </p>
+
+    <form method="POST">
+        <div style="background: #f7fafc; padding: 1rem; border-radius: 8px; border: 1px solid #edf2f7; margin-bottom: 1rem;">
+            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin: 0; color: #2d3748; font-weight: 600;">
+                <input type="checkbox" name="newsletter_opt_in" value="true" {% if user.newsletter_opt_in %}checked{% endif %} style="width: auto; margin: 0;">
+                Send me marketplace updates and newsletters
+            </label>
+        </div>
+
+        <button type="submit" class="btn">Save Preferences</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="margin-bottom: 2rem; background: linear-gradient(135deg, #f0fff4 0%, #ffffff 100%); border-left: 5px solid #2f855a;">
+    <h1 style="margin-top: 0; color: #22543d; font-size: 1.85rem;">🌾 Direct From Local Farms</h1>
+    <p style="color: #4a5568; margin-bottom: 1.25rem;">Explore local family farms, search their crop catalogs, and save your favorite farms for later.</p>
+
+    <form method="GET" action="{{ url_for('main.index') }}" style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: flex-end;">
+        <div style="flex: 2; min-width: 220px;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #4a5568; margin-bottom: 0.35rem;">Search Crops or Farm Names</label>
+            <input type="text" name="q" placeholder="e.g. Apples, Honey, Greenfields..." value="{{ query or '' }}" style="margin: 0; width: 100%;">
+        </div>
+        <div style="flex: 1; min-width: 150px;">
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #4a5568; margin-bottom: 0.35rem;">Filter Category</label>
+            <select name="category" style="margin: 0; width: 100%;">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                    <option value="{{ cat }}" {% if selected_category == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="display: flex; gap: 0.5rem; flex-shrink: 0; flex-wrap: wrap; align-items: center;">
+            {% if session.get('user_id') %}
+                <label style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: #4a5568; margin: 0;">
+                    <input type="checkbox" name="favorites_only" value="on" {% if favorites_only %}checked{% endif %} style="width: auto; margin: 0;">
+                    Favorites only
+                </label>
+            {% endif %}
+            <button type="submit" class="btn" style="white-space: nowrap; height: 38px;">🔍 Find Farms</button>
+            {% if query or selected_category or favorites_only %}
+                <a href="{{ url_for('main.index') }}" class="btn btn-outline" style="white-space: nowrap; height: 38px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box;">✕ Clear</a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <h2 style="margin: 0; font-size: 1.4rem;">Explore Local Farms
+        {% if selected_category %}<span class="badge badge-info">{{ selected_category }}</span>{% endif %}
+        {% if query %}<span class="badge badge-gray">Search: "{{ query }}"</span>{% endif %}
+    </h2>
+    <span style="color: #718096; font-size: 0.9rem;">{{ farms|length }} farm{{ 's' if farms|length != 1 else '' }} found</span>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+    {% for farm in farms %}
+        <div class="card" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; border-top: 4px solid #2f855a;">
+            <div>
+                <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem;">
+                    {% if farm.profile_image %}
+                        <img src="{{ url_for('static', filename='uploads/' + farm.profile_image) }}" alt="{{ farm.name }}" style="width: 75px; height: 75px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0; flex-shrink: 0;">
+                    {% else %}
+                        <div style="width: 75px; height: 75px; background: #edf2f7; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.75rem; color: #a0aec0; border: 1px solid #e2e8f0; flex-shrink: 0;">🚜</div>
+                    {% endif %}
+                    <div style="min-width: 0; flex: 1;">
+                        <h3 style="margin: 0; font-size: 1.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <a href="{{ url_for('farms.farm_detail', farm_id=farm.id) }}" style="color: #2d3748; text-decoration: none; font-weight: 700;">{{ farm.name }}</a>
+                        </h3>
+                        <p style="margin: 0.2rem 0; font-size: 0.85rem; color: #718096;">📍 {{ farm.location }}</p>
+                    </div>
+                </div>
+                {% if farm.description %}
+                    <p style="color: #4a5568; font-size: 0.88rem; margin: 0 0 1rem 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.5; height: 3.0em;">{{ farm.description }}</p>
+                {% else %}
+                    <p style="color: #a0aec0; font-style: italic; font-size: 0.88rem; margin: 0 0 1rem 0; line-height: 1.5; height: 3.0em;">No description provided.</p>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
+                <span style="font-size: 0.75rem; color: #718096; white-space: nowrap;">💳 {{ farm.payment_methods_display }}</span>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                    {% if session.get('user_id') %}
+                        <form method="POST" action="{{ url_for('farms.toggle_favorite', farm_id=farm.id) }}">
+                            <button type="submit" class="btn btn-outline" style="padding: 0.35rem 0.7rem; font-size: 0.75rem;">
+                                {% if farm.id in favorite_farm_ids %}★ Favorited{% else %}☆ Favorite{% endif %}
+                            </button>
+                        </form>
+                    {% endif %}
+                    <a href="{{ url_for('farms.farm_detail', farm_id=farm.id) }}" class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; text-align: center;">View Storefront →</a>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="card" style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🚜</div>
+            <h3 style="margin-top: 0; color: #4a5568;">No farms found</h3>
+            <p style="color: #718096; max-width: 500px; margin: 0 auto 1.5rem auto;">Try adjusting your search or category filters to discover more local farms.</p>
+            {% if query or selected_category %}
+                <a href="{{ url_for('main.index') }}" class="btn">Reset Filters</a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
