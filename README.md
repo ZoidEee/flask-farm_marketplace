@@ -24,6 +24,7 @@ This project is now a more complete MVP focused on stability, user trust, and ma
 ### User account and security features
 
 - Registration, login, logout, and profile management
+- Username input is limited to 80 characters server-side and in the registration form
 - Email verification flow
 - Forgot-password and reset-password support
 - Change-password support from the profile page

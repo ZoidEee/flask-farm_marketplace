@@ -142,8 +142,13 @@ def register():
         is_farmer = 'is_farmer' in request.form
         newsletter_opt_in = 'newsletter_opt_in' in request.form
 
+        max_username_length = current_app.config['MAX_USERNAME_LENGTH']
         if not username or len(username) < 3:
             flash('Username must be at least 3 characters long.', 'error')
+            return render_template('auth/register.html')
+
+        if len(username) > max_username_length:
+            flash(f'Username must be {max_username_length} characters or fewer.', 'error')
             return render_template('auth/register.html')
 
         if not email or '@' not in email:

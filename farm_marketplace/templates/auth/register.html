@@ -6,7 +6,7 @@
 
     <form method="POST" action="{{ url_for('auth.register') }}">
         <label for="username">Username</label>
-        <input type="text" name="username" id="username" placeholder="Choose a username (min 3 chars)" required autofocus minlength="3">
+        <input type="text" name="username" id="username" placeholder="Choose a username (3-80 chars)" required autofocus minlength="3" maxlength="80">
 
         <label for="email">Email Address</label>
         <input type="email" name="email" id="email" placeholder="you@example.com" required>
